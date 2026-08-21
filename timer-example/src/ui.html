@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>집중 타이머</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f7f4ee;
+        color: #25231f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 260px;
+        min-height: 220px;
+        padding: 22px 20px 18px;
+        background: #f7f4ee;
+      }
+
+      main {
+        display: grid;
+        gap: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        color: #8b2f24;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-align: center;
+      }
+
+      #display {
+        color: #25231f;
+        font-size: 44px;
+        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+        letter-spacing: 0;
+        line-height: 1;
+        text-align: center;
+      }
+
+      #message {
+        min-height: 18px;
+        color: #8b2f24;
+        font-size: 13px;
+        text-align: center;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      button {
+        min-height: 36px;
+        border: 0;
+        border-radius: 6px;
+        cursor: pointer;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      #toggle {
+        background: #8b2f24;
+        color: #fffaf2;
+      }
+
+      #reset {
+        background: #e4ddd1;
+        color: #25231f;
+      }
+
+      button:focus-visible {
+        outline: 2px solid #25231f;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>집중 타이머</h1>
+      <div id="display" aria-live="polite">25:00</div>
+      <div id="message" aria-live="polite"></div>
+      <div class="actions">
+        <button id="toggle" type="button">시작</button>
+        <button id="reset" type="button">초기화</button>
+      </div>
+    </main>
+
+    <script>
+      const initialSeconds = 25 * 60;
+      let remainingSeconds = initialSeconds;
+      let timerId = null;
+
+      const display = document.getElementById("display");
+      const message = document.getElementById("message");
+      const toggleButton = document.getElementById("toggle");
+      const resetButton = document.getElementById("reset");
+
+      function render() {
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        display.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      }
+
+      function stopTimer() {
+        window.clearInterval(timerId);
+        timerId = null;
+      }
+
+      function finishTimer() {
+        stopTimer();
+        remainingSeconds = 0;
+        render();
+        message.textContent = "시간이 끝났어요.";
+        toggleButton.textContent = "시작";
+      }
+
+      function tick() {
+        if (remainingSeconds <= 1) {
+          finishTimer();
+          return;
+        }
+
+        remainingSeconds -= 1;
+        render();
+      }
+
+      function toggleTimer() {
+        if (timerId !== null) {
+          stopTimer();
+          toggleButton.textContent = "시작";
+          return;
+        }
+
+        if (remainingSeconds === 0) {
+          return;
+        }
+
+        message.textContent = "";
+        timerId = window.setInterval(tick, 1000);
+        toggleButton.textContent = "일시정지";
+      }
+
+      function resetTimer() {
+        stopTimer();
+        remainingSeconds = initialSeconds;
+        message.textContent = "";
+        toggleButton.textContent = "시작";
+        render();
+      }
+
+      toggleButton.addEventListener("click", toggleTimer);
+      resetButton.addEventListener("click", resetTimer);
+      render();
+    </script>
+  </body>
+</html>
