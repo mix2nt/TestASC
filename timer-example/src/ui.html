@@ -19,7 +19,7 @@
       body {
         margin: 0;
         min-width: 260px;
-        min-height: 220px;
+        min-height: 300px;
         padding: 22px 20px 18px;
         background: #f7f4ee;
       }
@@ -55,6 +55,33 @@
         text-align: center;
       }
 
+      .settings {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: end;
+      }
+
+      label {
+        display: grid;
+        gap: 5px;
+        color: #25231f;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      input {
+        width: 100%;
+        min-height: 36px;
+        border: 1px solid #c9c0b3;
+        border-radius: 6px;
+        background: #fffaf2;
+        color: #25231f;
+        font: inherit;
+        font-size: 14px;
+        padding: 0 10px;
+      }
+
       .actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -81,6 +108,12 @@
         color: #25231f;
       }
 
+      #apply {
+        min-width: 54px;
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
       button:focus-visible {
         outline: 2px solid #25231f;
         outline-offset: 2px;
@@ -92,6 +125,12 @@
       <h1>집중 타이머</h1>
       <div id="display" aria-live="polite">25:00</div>
       <div id="message" aria-live="polite"></div>
+      <div class="settings">
+        <label for="minutes">집중 시간 (분)
+          <input id="minutes" type="number" min="1" max="120" step="1" value="25" />
+        </label>
+        <button id="apply" type="button">적용</button>
+      </div>
       <div class="actions">
         <button id="toggle" type="button">시작</button>
         <button id="reset" type="button">초기화</button>
@@ -99,12 +138,14 @@
     </main>
 
     <script>
-      const initialSeconds = 25 * 60;
-      let remainingSeconds = initialSeconds;
+      let timerDurationSeconds = 25 * 60;
+      let remainingSeconds = timerDurationSeconds;
       let timerId = null;
 
       const display = document.getElementById("display");
       const message = document.getElementById("message");
+      const minutesInput = document.getElementById("minutes");
+      const applyButton = document.getElementById("apply");
       const toggleButton = document.getElementById("toggle");
       const resetButton = document.getElementById("reset");
 
@@ -155,14 +196,32 @@
 
       function resetTimer() {
         stopTimer();
-        remainingSeconds = initialSeconds;
+        remainingSeconds = timerDurationSeconds;
         message.textContent = "";
+        toggleButton.textContent = "시작";
+        render();
+      }
+
+      function applyDuration() {
+        const value = minutesInput.value.trim();
+        const minutes = Number(value);
+
+        if (!/^\d+$/.test(value) || minutes < 1 || minutes > 120) {
+          message.textContent = "집중 시간은 1분에서 120분 사이의 정수로 입력해 주세요.";
+          return;
+        }
+
+        timerDurationSeconds = minutes * 60;
+        remainingSeconds = timerDurationSeconds;
+        stopTimer();
+        message.textContent = `${minutes}분으로 설정되었어요.`;
         toggleButton.textContent = "시작";
         render();
       }
 
       toggleButton.addEventListener("click", toggleTimer);
       resetButton.addEventListener("click", resetTimer);
+      applyButton.addEventListener("click", applyDuration);
       render();
     </script>
   </body>

@@ -2,7 +2,7 @@
 
 figma.showUI(__html__, {
   width: 260,
-  height: 220
+  height: 300
 });
 
 figma.ui.onmessage = (message: { type: string }) => {
